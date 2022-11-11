@@ -17,6 +17,10 @@ On Ubuntu --> `sudo apt install python3-pip`
 Then, you can install the dependencies:
 
 `pip3 install -r requirements.txt` 
+
+## Config
+
+Edit the `config.py` and replace all the fields to your own data. 
   
 ## Options
 
