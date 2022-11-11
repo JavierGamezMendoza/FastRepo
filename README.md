@@ -6,17 +6,17 @@ You need to install Python, Pip and the requisites declared in requirements.txt
 
 Install Python on [Python website](https://www.python.org/downloads/) for Windows or Mac and Linux.
 
-On Ubuntu --> `sudo apt install python` or `sudo apt install python3`
+On Ubuntu --> `sudo apt install python3`
 
 After that, you must install pip
 
 On Windows and Mac, go to [this page](https://bootstrap.pypa.io/get-pip.py), copy the content of the page in a .py file, and execute it with the python or python3 command on a terminal.
 
-On Ubuntu --> `sudo apt install python-pip` or `sudo apt install python3-pip`
+On Ubuntu --> `sudo apt install python3-pip`
 
 Then, you can install the dependencies:
 
-`pip install -r requirements.txt` or `pip3 install -r requirements.txt` 
+`pip3 install -r requirements.txt` 
   
 ## Options
 
