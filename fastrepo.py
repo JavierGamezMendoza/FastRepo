@@ -7,7 +7,7 @@ from git import Repo
 from github import Github
 
 # FILE CONFIGURATION
-version = "FastRepo 0.01 (https://github.com/javiergamezmendoza/FastRepo)"
+version = "FastRepo 0.03 (https://github.com/javiergamezmendoza/FastRepo)"
 
 # PARSER
 parser = argparse.ArgumentParser(description=version,
@@ -20,6 +20,7 @@ parserNew = subparsers.add_parser("new", help="Add/Create repositories.")
 parserNew.add_argument("-l", "--local", type=(str), dest="PATH", help="Creates a local git repository on the gived path")
 parserNew.add_argument("-r", "--remote", type=(str), dest="REPONAME", help="Create a GitHub repository with the given name ")
 parserNew.add_argument("-p", "--private", type=(bool), dest="PRIVATE", default=False,  help="Set to true if you want your Github Repo Private. ")
+parserNew.add_argument("-n", "--number", type=(int), dest="NUMBER",default=1, help="Set how many repositories create (REPONAME[NUMBER]). ")
 #SHOW
 parserShow = subparsers.add_parser("show", help="Show existing repositories") #TODO
 parserShow.add_argument("-r", "--remote", type=(str), dest="REPONAME", const="", nargs="?", help="Show the GitHub repositories of your account. ")
@@ -51,33 +52,33 @@ def createLocalRepo(path):
             git_config.set_value('user', 'name', User.userName)
     return
 
-#CREATE GITHUB REPO // NEW --REMOTE
-def createRemoteRepo(repoName, private):
-    try:
-        github = Github(User.gitToken)  
-        github.get_user(User.userName)
-        authed = github.get_user()
-        authed.create_repo( repoName,
-                            description="An example of description",
-                            has_issues=False,
-                            has_projects=False,
-                            has_wiki=False,
-                            private=private
-                        )  
-        print(c.OKGREEN + "Repositorio created correctly." + c.ENDC)
-    except: print(c.FAIL + "Something was wrong... Make sure of your config file and try again." + c.ENDC)
+#CREATE //MULTIPLE OR SINGLE// GITHUB REPO/S // NEW --REMOTE
+def createRemoteRepos(repoName, repoNumber, private):
+    for i in range(repoNumber):
+        finalRepoName = repoName + str(i+1) if repoNumber > 1 else repoName
+        try:
+            authed.create_repo( finalRepoName,
+                                description="An example of description",
+                                has_issues=False,
+                                has_projects=False,
+                                has_wiki=False,
+                                private=private
+                            )  
+            print(c.OKGREEN + f"Repository {repoName + str(i+1)} created correctly." + c.ENDC)
+        except: print(c.FAIL + "Something was wrong... Make sure of your config file and try again." + c.ENDC)
+
 
 #SHOW  
+# SHOW ALL REPOS
+def showRemoteRepos():
+    for repo in authed.get_repos():
+        print(c.OKGREEN + str(repo.name) + c.ENDC)
+
+# SHOW ONE REPO DETAILS
 def showRemoteRepo(repoName):
-    github = Github(User.gitToken) 
-    authed = github.get_user()
-    if repoName == "":
-        for repo in authed.get_repos():
-            print(repo.name)
-    else:
         try:
             repo = authed.get_repo(repoName)
-            print(repo.name)
+            print("\n" + c.UNDERLINE + c.WARNING + repo.name + c.ENDC)
             print("--------------------------")
             print(c.UNDERLINE + c.WARNING + "COMMITS \n" + c.ENDC)
             for commit in repo.get_commits():
@@ -89,6 +90,9 @@ def showRemoteRepo(repoName):
                 print (c.OKGREEN + str(branch) + c.ENDC)
                 print (branch.commit)
                 print("--------------------------")
+            print(c.UNDERLINE + c.WARNING + "FILES \n" + c.ENDC)
+            for content in repo.get_contents(""):
+                print (c.OKGREEN + str(content.path) + c.ENDC)
         except:
             print(c.FAIL + "Some error ocurred... Try again." + c.ENDC)
 
@@ -100,18 +104,26 @@ def showRemoteRepo(repoName):
 if len(sys.argv) < 2:
     parser.print_help()
     sys.exit(1)
+
+github = Github(User.gitToken)  
+github.get_user(User.userName)
+authed = github.get_user()
+
 if args.version:
     print(version)
+    sys.exit(1)
 if args.command == "new":
     if args.PATH:
         path = args.PATH
         createLocalRepo(path)
     if args.REPONAME:
         repoName = args.REPONAME
-        print(repoName)
+        repoNumber = args.NUMBER
         private = args.PRIVATE
-        createRemoteRepo(repoName, private)
+        createRemoteRepos(repoName, repoNumber, private)
 elif args.command == "show":
     repoName = args.REPONAME
-    if hasattr(args, "REPONAME"):
+    if repoName == "":
+        showRemoteRepos()
+    elif hasattr(args, "REPONAME"):
         showRemoteRepo(repoName)
