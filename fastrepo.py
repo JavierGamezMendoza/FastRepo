@@ -7,7 +7,7 @@ from git import Repo
 from github import Github
 
 # FILE CONFIGURATION
-version = "FastRepo 0.03 (https://github.com/javiergamezmendoza/FastRepo)"
+version = "FastRepo 0.04 (https://github.com/javiergamezmendoza/FastRepo)"
 
 # PARSER
 parser = argparse.ArgumentParser(description=version,
@@ -56,17 +56,27 @@ def createLocalRepo(path):
 def createRemoteRepos(repoName, repoNumber, private):
     for i in range(repoNumber):
         finalRepoName = repoName + str(i+1) if repoNumber > 1 else repoName
-        try:
-            authed.create_repo( finalRepoName,
-                                description="An example of description",
-                                has_issues=False,
-                                has_projects=False,
-                                has_wiki=False,
-                                private=private
-                            )  
-            print(c.OKGREEN + f"Repository {repoName + str(i+1)} created correctly." + c.ENDC)
-        except: print(c.FAIL + "Something was wrong... Make sure of your config file and try again." + c.ENDC)
+        if repoExist(finalRepoName):
+            print(c.FAIL + "The repository "+ finalRepoName + " already exists." + c.ENDC)
+        else:
+            try:
+                authed.create_repo( finalRepoName,
+                                    description="An example of description",
+                                    has_issues=False,
+                                    has_projects=False,
+                                    has_wiki=False,
+                                    private=private
+                                )  
+                print(c.OKGREEN + f"Repository {finalRepoName} created correctly." + c.ENDC)
+            except: print(c.FAIL + "Something was wrong... Make sure of your config file and try again." + c.ENDC)
 
+# CHECK IF REPO EXISTS IN GITHUB
+def repoExist(repoName):
+    try:
+        authed.get_repo(repoName)
+        return True
+    except:
+        return False
 
 #SHOW  
 # SHOW ALL REPOS
