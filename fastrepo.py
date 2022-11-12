@@ -17,15 +17,18 @@ subparsers = parser.add_subparsers(dest="command")
 
 #NEW
 parserNew = subparsers.add_parser("new", help="Add/Create repositories.")
-parserNew.add_argument("-l", "--local", type=(str), dest="PATH", help="Creates a local git repository on the gived path")
-parserNew.add_argument("-r", "--remote", type=(str), dest="REPONAME", help="Create a GitHub repository with the given name ")
-parserNew.add_argument("-p", "--private", type=(bool), dest="PRIVATE", default=False,  help="Set to true if you want your Github Repo Private. ")
-parserNew.add_argument("-n", "--number", type=(int), dest="NUMBER",default=1, help="Set how many repositories create (REPONAME[NUMBER]). ")
+parserNew.add_argument("-l", "--local", type=(str), dest="PATH", help="Creates a local git repository on the gived path.")
+parserNew.add_argument("-r", "--remote", type=(str), dest="REPONAME", help="Create a GitHub repository with the given name.")
+parserNew.add_argument("-p", "--private", type=(bool), dest="PRIVATE", default=False,  help="Set to 'True' if you want your Github Repo Private.")
+parserNew.add_argument("-n", "--number", type=(int), dest="NUMBER",default=1, help="Set how many repositories create (REPONAME[NUMBER]).")
 #SHOW
-parserShow = subparsers.add_parser("show", help="Show existing repositories") #TODO
+parserShow = subparsers.add_parser("show", help="Show existing repositories")
 parserShow.add_argument("-r", "--remote", type=(str), dest="REPONAME", const="", nargs="?", help="Show the GitHub repositories of your account. ")
 #REMOVE
-parserRemove = subparsers.add_parser("remove", help="Remove existing repositories") #TODO
+parserRemove = subparsers.add_parser("remove", help="Remove existing repositories")
+parserRemove.add_argument("-l", "--local", type=(str), dest="PATH", help="Remove a local git repository on the gived path.")
+parserRemove.add_argument("-r", "--remote", type=(str), dest="REPONAME", help="Remove a GitHub repository with the given name (The name is not case sensitive). ")
+
 
 args = parser.parse_args()
 
@@ -46,7 +49,7 @@ def createLocalRepo(path):
             repo = Repo(gitPath)
     else:
         Repo.init(gitPath)
-    
+
     with repo.config_writer() as git_config:
             git_config.set_value('user', 'email', User.userMail)
             git_config.set_value('user', 'name', User.userName)
@@ -66,9 +69,25 @@ def createRemoteRepos(repoName, repoNumber, private):
                                     has_projects=False,
                                     has_wiki=False,
                                     private=private
-                                )  
+                                )
                 print(c.OKGREEN + f"Repository {finalRepoName} created correctly." + c.ENDC)
             except: print(c.FAIL + "Something was wrong... Make sure of your config file and try again." + c.ENDC)
+
+def deleteRemoteRepos(repoName):
+        if repoExist(repoName):
+            print(repoName)
+            print(c.WARNING + f"This action will delete the {repoName} repository." + c.ENDC)
+            if input("Are you sure? y/N: ") =="y":
+                # try:
+                    repo = authed.get_repo(repoName)
+                    repo.delete()
+                    print(c.OKGREEN + f"The repository {repoName} has been deleted."+ c.ENDC)
+                # except:
+                #     print("Something was wrong... Try again")
+        else:
+            print(c.FAIL + f"Repository {repoName} not found." + c.ENDC)
+
+
 
 # CHECK IF REPO EXISTS IN GITHUB
 def repoExist(repoName):
@@ -78,7 +97,7 @@ def repoExist(repoName):
     except:
         return False
 
-#SHOW  
+#SHOW
 # SHOW ALL REPOS
 def showRemoteRepos():
     for repo in authed.get_repos():
@@ -115,7 +134,7 @@ if len(sys.argv) < 2:
     parser.print_help()
     sys.exit(1)
 
-github = Github(User.gitToken)  
+github = Github(User.gitToken)
 github.get_user(User.userName)
 authed = github.get_user()
 
@@ -137,3 +156,14 @@ elif args.command == "show":
         showRemoteRepos()
     elif hasattr(args, "REPONAME"):
         showRemoteRepo(repoName)
+elif args.command == "remove":
+    if args.PATH:
+        gitPath = args.PATH
+        print("This action will remove any repository on the given path.")
+        if input("Are you sure? y/N").lower() == "y":
+            shutil.rmtree(gitPath)
+    if args.REPONAME:
+        repoName = args.REPONAME
+        deleteRemoteRepos(repoName)
+
+
