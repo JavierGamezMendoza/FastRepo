@@ -150,7 +150,7 @@ github.get_user(User.userName)
 authed = github.get_user()
 
 if args.version:
-    print(version)
+    print(conf.version)
     sys.exit(1)
 if args.command == "new":
     if args.PATH:
