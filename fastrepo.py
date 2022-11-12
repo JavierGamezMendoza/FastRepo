@@ -6,11 +6,22 @@ from config import User, Colors as c
 from git import Repo
 from github import Github
 
+
+
+
 # FILE CONFIGURATION
-version = "FastRepo 0.04 (https://github.com/javiergamezmendoza/FastRepo)"
+class conf():
+    name = "FastRepo"
+    version = "FastRepo 0.04 (https://github.com/javiergamezmendoza/FastRepo)"
+    license = ""
+    author = "Javier Gámez"
+    author_email='javiergammen@gmail.com'
+
+
+
 
 # PARSER
-parser = argparse.ArgumentParser(description=version,
+parser = argparse.ArgumentParser(description=conf.version,
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-v", "--version", action="store_true", help="Shows project version")
 subparsers = parser.add_subparsers(dest="command")
