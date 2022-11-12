@@ -20,7 +20,9 @@ Then, you can install the dependencies:
 
 ## Config
 
-Edit the `config.py` and replace all the fields to your own data. 
+Edit the `config.py` and replace all the fields to your own data.
+
+In `gitToken` field you must paste a GitHub token (classic) with repo and delete repo permissions. 
   
 ## Options
 
